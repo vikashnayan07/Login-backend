@@ -177,8 +177,36 @@ const userProfileUpdate = async (req, res) => {
   }
 };
 
-const userPasswordReset = (req, res) => {
-  res.json("vikash");
+const userPasswordReset = async (req, res) => {
+  try {
+    if (!req.app.locals.resetSession)
+      return res.status(404).send({ err: "Session Expire" });
+    try {
+      const { username, password } = req.body;
+      const user = await User.findOne({ username }).exec();
+
+      if (!user) {
+        return res.status(404).send({ msg: "User not found" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      const update = await User.updateOne(
+        { username: user.username },
+        { password: hashedPassword }
+      );
+
+      if (!update) {
+        return res.status(500).send({ msg: "Failed to update password" });
+      }
+      req.app.locals.resetSession = false;
+      return res.status(200).send({ msg: "Password updated successfully" });
+    } catch (error) {
+      return res.status(500).send({ error: "Server error" });
+    }
+  } catch (error) {
+    return res.status(500).send({ error });
+  }
 };
 
 module.exports = {
