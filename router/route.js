@@ -10,7 +10,7 @@ const {
   userPasswordReset,
   verifyUser,
 } = require("../controllers/authControllers");
-const Auth = require("../middleware/authUser");
+const { Auth, localVariable } = require("../middleware/authUser");
 
 const router = express.Router();
 
@@ -28,7 +28,7 @@ router.route("/login").post(verifyUser, userLogin);
 
 // ********* GET **********/
 router.route("/user/:username").get(getUserByUsername);
-router.route("/generateOTP").get(generateOTP);
+router.route("/generateOTP").get(verifyUser, localVariable, generateOTP);
 router.route("/verifyOTP").get(verifyOTP);
 router.route("/createResetsession").get(createResetsession);
 

@@ -1,6 +1,7 @@
 const User = require("../model/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const otpGenerator = require("otp-generator");
 
 const secret = "Vikash94304";
 
@@ -112,6 +113,7 @@ const userLogin = async (req, res) => {
     return res.status(500).send({ msg: "Internal server error" });
   }
 };
+
 const getUserByUsername = async (req, res) => {
   const { username } = req.params;
 
@@ -128,16 +130,33 @@ const getUserByUsername = async (req, res) => {
       .send({ msg: "Can't find username", error: error.message });
   }
 };
-const generateOTP = (req, res) => {
-  res.json("vikash");
+
+const generateOTP = async (req, res) => {
+  req.app.locals.OTP = await otpGenerator.generate(6, {
+    upperCaseAlphabets: false,
+    specialChars: false,
+    lowerCaseAlphabets: false,
+  });
+  return res.status(201).send({ code: req.app.locals.OTP });
 };
 
 const verifyOTP = (req, res) => {
-  res.json("vikash");
+  const { code } = req.query;
+  if (parseInt(req.app.locals.OTP) === parseInt(code)) {
+    req.app.locals.OTP = null;
+    req.app.locals.resetSession = true;
+    return res.status(201).send({ msg: "OTP verify successfully" });
+  }
+  return res.status(401).send({ msg: "Invalid OTP" });
 };
 
 const createResetsession = (req, res) => {
-  res.json("vikash");
+  if (req.app.locals.resetSession) {
+    req.app.locals.resetSession = false;
+    res.status(201).send({ msg: "Access granted..." });
+  }
+
+  res.status(401).send({ error: "Access denied..." });
 };
 
 const userProfileUpdate = async (req, res) => {

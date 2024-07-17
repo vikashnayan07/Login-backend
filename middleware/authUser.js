@@ -13,4 +13,12 @@ async function Auth(req, res, next) {
   }
 }
 
-module.exports = Auth;
+function localVariable(req, res, next) {
+  req.app.locals = {
+    OTP: null,
+    resetSession: false,
+  };
+  next();
+}
+
+module.exports = { Auth, localVariable };
