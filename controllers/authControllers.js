@@ -7,8 +7,8 @@ const secret = "Vikash94304";
 
 const verifyUser = async (req, res, next) => {
   try {
-    const { username } = req.method == "GET" ? req.query : req.body;
-    let exist = await User.findOne({ username });
+    const { username } = req.method === "GET" ? req.query : req.body;
+    const exist = await User.findOne({ username });
     if (!exist) return res.status(404).send({ msf: "Username not found" });
     next();
   } catch (error) {
@@ -150,12 +150,13 @@ const verifyOTP = (req, res) => {
 };
 
 const createResetsession = (req, res) => {
+  console.log("resetSession:", req.app.locals.resetSession); // Debugging line
+
   if (req.app.locals.resetSession) {
-    req.app.locals.resetSession = false;
-    res.status(201).send({ msg: "Access granted..." });
+    return res.status(201).send({ flag: req.app.locals.resetSession });
   }
 
-  res.status(401).send({ error: "Access denied..." });
+  return res.status(401).send({ error: "Access denied..." });
 };
 
 const userProfileUpdate = async (req, res) => {
@@ -178,33 +179,43 @@ const userProfileUpdate = async (req, res) => {
 
 const userPasswordReset = async (req, res) => {
   try {
-    if (!req.app.locals.resetSession)
-      return res.status(404).send({ err: "Session Expire" });
-    try {
-      const { username, password } = req.body;
-      const user = await User.findOne({ username }).exec();
+    console.log("Reset Session Status:", req.app.locals.resetSession); // Debugging
 
-      if (!user) {
-        return res.status(404).send({ msg: "User not found" });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 12);
-
-      const update = await User.updateOne(
-        { username: user.username },
-        { password: hashedPassword }
-      );
-
-      if (!update) {
-        return res.status(500).send({ msg: "Failed to update password" });
-      }
-      req.app.locals.resetSession = false;
-      return res.status(200).send({ msg: "Password updated successfully" });
-    } catch (error) {
-      return res.status(500).send({ error: "Server error" });
+    if (!req.app.locals.resetSession) {
+      return res.status(401).send({ error: "Session expired" });
     }
+
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res
+        .status(400)
+        .send({ error: "Username and password are required" });
+    }
+
+    const user = await User.findOne({ username }).exec();
+
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const update = await User.updateOne(
+      { username: user.username },
+      { password: hashedPassword }
+    );
+
+    if (update.nModified === 0) {
+      return res.status(500).send({ error: "Failed to update password" });
+    }
+
+    req.app.locals.resetSession = false;
+
+    return res.status(200).send({ message: "Password updated successfully" });
   } catch (error) {
-    return res.status(500).send({ error });
+    console.error("Error in userPasswordReset:", error);
+    return res.status(500).send({ error: "Server error" });
   }
 };
 
