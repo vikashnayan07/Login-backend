@@ -17,7 +17,7 @@ let mailGenerator = new Mailgen({
   product: {
     // Appears in header & footer of e-mails
     name: "Mailgen",
-    link: "https://mailgen.js/",
+    link: "https://twitter.com/vikashnayan7",
     // Optional product logo
     // logo: 'https://mailgen.js/img/logo.png'
   },

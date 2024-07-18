@@ -21,14 +21,14 @@ router.route("/register").post(userRegister);
 
 router.route("/registerMail").post(registerToMail);
 
-router.route("/authenticate").post((req, res) => res.end());
+router.route("/authenticate").post(verifyUser, (req, res) => res.end());
 router.route("/login").post(verifyUser, userLogin);
 
 // ********* GET **********/
 
 router.route("/user/:username").get(getUserByUsername);
 router.route("/generateOTP").get(verifyUser, localVariable, generateOTP);
-router.route("/verifyOTP").get(verifyOTP);
+router.route("/verifyOTP").get(verifyUser, verifyOTP);
 router.route("/createResetsession").get(createResetsession);
 
 // ********* PUT ********* //

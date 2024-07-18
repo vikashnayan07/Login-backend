@@ -52,7 +52,6 @@ const userRegister = async (req, res) => {
       })
       .then((result) => {
         res.status(201).send({
-          status: "Successful",
           msg: "Register Successful",
         });
       })
