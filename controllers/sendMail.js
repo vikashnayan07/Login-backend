@@ -1,8 +1,10 @@
 const nodemailer = require("nodemailer");
 const Mailgen = require("mailgen");
+const dotenv = require("dotenv");
+dotenv.config();
 
-const clientEmail = "vikashnayan7.official@gmail.com";
-const password = "cnsuztzlxwboyabj";
+const clientEmail = process.env.EMAIL;
+const password = process.env.PASS;
 
 let nodeConfig = {
   service: "gmail",
@@ -18,8 +20,6 @@ let mailGenerator = new Mailgen({
     // Appears in header & footer of e-mails
     name: "Mailgen",
     link: "https://twitter.com/vikashnayan7",
-    // Optional product logo
-    // logo: 'https://mailgen.js/img/logo.png'
   },
 });
 

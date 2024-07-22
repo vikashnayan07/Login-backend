@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
 
-const secret = "Vikash94304";
+const secret = process.env.JWT_SECRET;
 
 const verifyUser = async (req, res, next) => {
   try {
@@ -141,6 +141,8 @@ const generateOTP = async (req, res) => {
 
 const verifyOTP = (req, res) => {
   const { code } = req.query;
+  console.log(code);
+  console.log(req.app.locals);
   if (parseInt(req.app.locals.OTP) === parseInt(code)) {
     req.app.locals.OTP = null;
     req.app.locals.resetSession = true;
@@ -150,10 +152,11 @@ const verifyOTP = (req, res) => {
 };
 
 const createResetsession = (req, res) => {
-  console.log("resetSession:", req.app.locals.resetSession); // Debugging line
+  console.log("resetSession:", req.app.locals.resetSession);
 
   if (req.app.locals.resetSession) {
     return res.status(201).send({ flag: req.app.locals.resetSession });
+    console.log({ flag: req.app.locals.resetSession });
   }
 
   return res.status(401).send({ error: "Access denied..." });
@@ -179,7 +182,7 @@ const userProfileUpdate = async (req, res) => {
 
 const userPasswordReset = async (req, res) => {
   try {
-    console.log("Reset Session Status:", req.app.locals.resetSession); // Debugging
+    console.log("Reset Session Status:", req.app.locals.resetSession);
 
     if (!req.app.locals.resetSession) {
       return res.status(401).send({ error: "Session expired" });
@@ -196,7 +199,7 @@ const userPasswordReset = async (req, res) => {
     const user = await User.findOne({ username }).exec();
 
     if (!user) {
-      return res.status(404).send({ error: "User not found" });
+      return res.status(404).send({ error: "Username not found" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
