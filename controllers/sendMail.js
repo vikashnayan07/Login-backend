@@ -17,7 +17,7 @@ let transporter = nodemailer.createTransport(nodeConfig);
 let mailGenerator = new Mailgen({
   theme: "default",
   product: {
-    // Appears in header & footer of e-mails
+  
     name: "Mailgen",
     link: "https://twitter.com/vikashnayan7",
   },
